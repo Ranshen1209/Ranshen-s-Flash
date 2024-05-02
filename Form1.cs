@@ -93,7 +93,7 @@ namespace Ranshen_s_Flash
             btnInstallDrivers.Text = "安装驱动";
             btnInstallDrivers.Location = new Point(comboBoxScripts.Right + 10, 10);
             // 1/8宽度减去间隙
-            btnInstallDrivers.Width = (controlWidth / 8); 
+            btnInstallDrivers.Width = (controlWidth / 8);
             btnInstallDrivers.Height = (controlHeight / 15);
             btnInstallDrivers.Click += new EventHandler(BtnInstallDrivers_Click);
             Controls.Add(btnInstallDrivers);
@@ -142,78 +142,85 @@ namespace Ranshen_s_Flash
             string exePath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
             string batPath = System.IO.Path.Combine(exePath, batFileName);
 
-            // 检查BAT文件是否存在
             if (!File.Exists(batPath))
             {
                 MessageBox.Show("The selected script file does not exist. Please verify the files and try again.");
-                // 文件不存在，直接返回
-                return;  
+                return;
             }
 
-            // 读取BAT文件行数，文件存在时才执行
-            int lineCount = File.ReadAllLines(batPath).Length;
-            progressBar.Maximum = lineCount;
             progressBar.Value = 0;
-            progressBar.Style = ProgressBarStyle.Continuous;
-            progressBar.ForeColor = Color.Green;
+            progressBar.Style = ProgressBarStyle.Marquee;
 
-            // 设置操作开始的标志
             isOperationInProgress = true;
-
-            // 当前执行的行数
-            int currentLine = 0;
+            btnFlash.Enabled = false;
+            btnInstallDrivers.Enabled = false;
 
             await Task.Run(() =>
             {
-                Process process = new Process();
-                process.StartInfo.FileName = "cmd.exe";
-                process.StartInfo.Arguments = $"/c \"{batPath}\"";
-                process.StartInfo.UseShellExecute = false;
-                process.StartInfo.RedirectStandardOutput = true;
-                process.StartInfo.RedirectStandardError = true;
-                process.StartInfo.CreateNoWindow = true;
-                process.StartInfo.Verb = "runas";
-
-                try
+                Process process = new Process
                 {
-                    process.Start();
-                    while (!process.StandardOutput.EndOfStream)
+                    StartInfo = new ProcessStartInfo
                     {
-                        string line = process.StandardOutput.ReadLine();
+                        FileName = "cmd.exe",
+                        Arguments = $"/c \"{batPath}\"",
+                        UseShellExecute = false,
+                        RedirectStandardOutput = true,
+                        RedirectStandardError = true,
+                        CreateNoWindow = true
+                    }
+                };
+
+                process.OutputDataReceived += (s, args) =>
+                {
+                    if (!string.IsNullOrEmpty(args.Data))
+                    {
                         this.Invoke(new Action(() =>
                         {
-                            UpdateTextBox(line);
-                            progressBar.Value = Math.Min(++currentLine, progressBar.Maximum);
+                            UpdateTextBox(args.Data);
                         }));
                     }
-                    process.WaitForExit();
-                    this.Invoke(new Action(() =>
-                    {
-                        if (process.ExitCode == 0)
-                        {
-                            progressBar.Value = progressBar.Maximum;
-                        }
-                        else
-                        {
-                            progressBar.Value = progressBar.Maximum;
-                            progressBar.ForeColor = Color.Red;
-                        }
-                        // 清除操作标志
-                        isOperationInProgress = false;
-                    }));
-                }
-                catch (Exception ex)
+                };
+
+                process.ErrorDataReceived += (s, args) =>
                 {
-                    this.Invoke(new Action(() =>
+                    if (!string.IsNullOrEmpty(args.Data))
                     {
-                        MessageBox.Show($"Failed to flash device: {ex.Message}");
+                        this.Invoke(new Action(() =>
+                        {
+                            UpdateTextBox("Error: " + args.Data);
+                        }));
+                    }
+                };
+
+                process.Start();
+                process.BeginOutputReadLine();
+                process.BeginErrorReadLine();
+                process.WaitForExit();
+                process.CancelOutputRead();
+                process.CancelErrorRead();
+
+                this.Invoke(new Action(() =>
+                {
+                    if (process.ExitCode == 0)
+                    {
+                        progressBar.Style = ProgressBarStyle.Continuous;
+                        progressBar.Value = progressBar.Maximum;
+                    }
+                    else
+                    {
+                        progressBar.Style = ProgressBarStyle.Continuous;
+                        progressBar.Value = 0;
                         progressBar.ForeColor = Color.Red;
-                        // 清除操作标志
-                        isOperationInProgress = false;
-                    }));
-                }
+                    }
+                    btnFlash.Enabled = true;
+                    btnInstallDrivers.Enabled = true;
+                    isOperationInProgress = false;
+                }));
             });
         }
+
+
+
 
         private void UpdateUI(string text)
         {
@@ -232,79 +239,80 @@ namespace Ranshen_s_Flash
             string exePath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
             string batPath = System.IO.Path.Combine(exePath, "bin\\resources\\install_drivers.bat");
 
-
-            // 读取BAT文件行数
             int lineCount = File.ReadAllLines(batPath).Length;
             progressBar.Maximum = lineCount;
             progressBar.Value = 0;
             progressBar.Style = ProgressBarStyle.Continuous;
-
-            // 默认为绿色
             progressBar.ForeColor = Color.Green;
 
-            // 设置操作开始的标志
             isOperationInProgress = true;
-
-            // 当前执行的行数
-            int currentLine = 0;
+            btnFlash.Enabled = false;
+            btnInstallDrivers.Enabled = false;
 
             await Task.Run(() =>
             {
-                Process process = new Process();
-                process.StartInfo.FileName = "cmd.exe";
-                process.StartInfo.Arguments = $"/c \"{batPath}\"";
-                process.StartInfo.UseShellExecute = false;
-                process.StartInfo.RedirectStandardOutput = true;
-                process.StartInfo.RedirectStandardError = true;
-                process.StartInfo.CreateNoWindow = true;
-                process.StartInfo.Verb = "runas";
-
-                try
+                Process process = new Process
                 {
-                    process.Start();
-                    while (!process.StandardOutput.EndOfStream)
+                    StartInfo = new ProcessStartInfo
                     {
-                        string line = process.StandardOutput.ReadLine();
+                        FileName = "cmd.exe",
+                        Arguments = $"/c \"{batPath}\"",
+                        UseShellExecute = false,
+                        RedirectStandardOutput = true,
+                        RedirectStandardError = true,
+                        CreateNoWindow = true,
+                        Verb = "runas"
+                    }
+                };
+
+                process.OutputDataReceived += (s, args) =>
+                {
+                    if (!string.IsNullOrEmpty(args.Data))
+                    {
                         this.Invoke(new Action(() =>
                         {
-                            UpdateTextBox(line);
-                            // 更新进度条
-                            progressBar.Value = Math.Min(++currentLine, progressBar.Maximum);
+                            UpdateTextBox(args.Data);
+                            progressBar.Value = Math.Min(++lineCount, progressBar.Maximum);
                         }));
                     }
-                    process.WaitForExit();
+                };
 
-                    // 根据进程退出代码更新进度条
-                    this.Invoke(new Action(() =>
-                    {
-                        if (process.ExitCode == 0)
-                        {
-                            // 成功完成
-                            progressBar.Value = progressBar.Maximum;
-                        }
-                        else
-                        {
-                            progressBar.Value = progressBar.Maximum;
-                            // 出现错误，显示红色
-                            progressBar.ForeColor = Color.Red;
-                        }
-                        // 清除操作标志
-                        isOperationInProgress = false;
-                    }));
-                }
-                catch (Exception ex)
+                process.ErrorDataReceived += (s, args) =>
                 {
-                    this.Invoke(new Action(() =>
+                    if (!string.IsNullOrEmpty(args.Data))
                     {
-                        MessageBox.Show($"Failed to install drivers: {ex.Message}");
-                        // 出现错误，显示红色
+                        this.Invoke(new Action(() =>
+                        {
+                            UpdateTextBox("Error: " + args.Data);
+                        }));
+                    }
+                };
+
+                process.Start();
+                process.BeginOutputReadLine();
+                process.BeginErrorReadLine();
+                process.WaitForExit();
+                process.CancelOutputRead();
+                process.CancelErrorRead();
+
+                this.Invoke(new Action(() =>
+                {
+                    if (process.ExitCode == 0)
+                    {
+                        progressBar.Value = progressBar.Maximum;
+                    }
+                    else
+                    {
+                        progressBar.Value = progressBar.Maximum;
                         progressBar.ForeColor = Color.Red;
-                        // 清除操作标志
-                        isOperationInProgress = false;
-                    }));
-                }
+                    }
+                    btnFlash.Enabled = true;
+                    btnInstallDrivers.Enabled = true;
+                    isOperationInProgress = false;
+                }));
             });
         }
+
 
 
         // 更新文本框
