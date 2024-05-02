@@ -19,32 +19,56 @@ namespace Ranshen_s_Flash
         private TextBox textBoxOutput;
         private ProgressBar progressBar;
         private Button btnInstallDrivers;
+        private bool isOperationInProgress = false;
 
         public Form1()
         {
             InitializeComponent();
             InitializeCustomComponents();
+            AdjustFormSizeBasedOnDPI();
             SetupFormProperties();
+            this.FormClosing += new FormClosingEventHandler(Form1_FormClosing);
         }
 
         private void Form1_Load(object sender, EventArgs e) { }
 
+        private void AdjustFormSizeBasedOnDPI()
+        {
+            // 设置窗口在屏幕中心打开
+            this.StartPosition = FormStartPosition.CenterScreen;
+
+            // 创建 Graphics 对象以获取当前 DPI 设置
+            Graphics graphics = this.CreateGraphics();
+            float dpiX = graphics.DpiX;
+            float dpiY = graphics.DpiY;
+
+            // 默认屏幕DPI为96
+            float scale = dpiX / 96;
+
+            // 根据DPI调整窗口大小
+            Rectangle screen = Screen.PrimaryScreen.Bounds;
+            int baseWidth = screen.Width * 26 / 100;  // 设计时的基准宽度
+            int baseHeight = screen.Height * 30 / 100; // 设计时的基准高度
+            this.ClientSize = new Size((int)(baseWidth * scale), (int)(baseHeight * scale));
+
+            // 确保释放 Graphics 资源
+            graphics.Dispose();
+        }
+
         private void SetupFormProperties()
         {
             this.Text = "Ranshen's Flash";
-
-            Rectangle screen = Screen.PrimaryScreen.Bounds;
-            int width = screen.Width * 26 / 100;
-            int height = screen.Height * 30 / 100;
-            this.ClientSize = new Size(width, height);
-            // 禁止最大化窗口
             this.MaximizeBox = false;
-            // 禁止调整窗口大小
-            this.FormBorderStyle = FormBorderStyle.FixedDialog;
-
             this.Icon = new Icon("bin/resources/android_FILL0.ico");
+        }
 
-            this.StartPosition = FormStartPosition.CenterScreen;
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (isOperationInProgress)
+            {
+                MessageBox.Show("Operation in progress. Please wait until it's completed before closing the application.");
+                e.Cancel = true;
+            }
         }
 
         private void InitializeCustomComponents()
@@ -52,15 +76,16 @@ namespace Ranshen_s_Flash
             // 调整控件位置和大小
             // 控件宽度为窗口宽度减20px
             int controlWidth = this.ClientSize.Width - 20;
+            int controlHeight = this.ClientSize.Height;
 
             // 初始化下拉列表
             comboBoxScripts = new ComboBox();
             comboBoxScripts.DropDownStyle = ComboBoxStyle.DropDownList;
             comboBoxScripts.Items.Add("flash_all");
             comboBoxScripts.Items.Add("flash_all_except_storage");
-            comboBoxScripts.Location = new Point(10, 10);
+            comboBoxScripts.Location = new Point(10, 15);
             // 1/3宽度减去间隙
-            comboBoxScripts.Width = controlWidth / 3 - 10;
+            comboBoxScripts.Width = (controlWidth / 3) - 10;
             Controls.Add(comboBoxScripts);
 
             // 调整按钮位置
@@ -68,7 +93,8 @@ namespace Ranshen_s_Flash
             btnInstallDrivers.Text = "安装驱动";
             btnInstallDrivers.Location = new Point(comboBoxScripts.Right + 10, 10);
             // 1/8宽度减去间隙
-            btnInstallDrivers.Width = (controlWidth / 8) - 5; // 
+            btnInstallDrivers.Width = (controlWidth / 8); 
+            btnInstallDrivers.Height = (controlHeight / 15);
             btnInstallDrivers.Click += new EventHandler(BtnInstallDrivers_Click);
             Controls.Add(btnInstallDrivers);
 
@@ -76,7 +102,8 @@ namespace Ranshen_s_Flash
             btnFlash.Text = "开始刷机";
             btnFlash.Location = new Point(btnInstallDrivers.Right + 10, 10);
             // 1/8宽度减去间隙
-            btnFlash.Width = (controlWidth / 8) - 5;
+            btnFlash.Width = (controlWidth / 8);
+            btnFlash.Height = (controlHeight / 15);
             btnFlash.Click += new EventHandler(BtnFlash_Click);
             Controls.Add(btnFlash);
 
@@ -84,7 +111,7 @@ namespace Ranshen_s_Flash
             textBoxOutput.Multiline = true;
             textBoxOutput.ScrollBars = ScrollBars.Vertical;
             // 距离顶部50px开始
-            textBoxOutput.Location = new Point(10, 50);
+            textBoxOutput.Location = new Point(10, 60);
             // 设置宽度为窗口宽度的60%
             textBoxOutput.Width = (int)(this.ClientSize.Width * 0.6);
             // 设置高度为窗口高度的50%
@@ -115,13 +142,23 @@ namespace Ranshen_s_Flash
             string exePath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
             string batPath = System.IO.Path.Combine(exePath, batFileName);
 
-            // 读取BAT文件行数
+            // 检查BAT文件是否存在
+            if (!File.Exists(batPath))
+            {
+                MessageBox.Show("The selected script file does not exist. Please verify the files and try again.");
+                // 文件不存在，直接返回
+                return;  
+            }
+
+            // 读取BAT文件行数，文件存在时才执行
             int lineCount = File.ReadAllLines(batPath).Length;
             progressBar.Maximum = lineCount;
             progressBar.Value = 0;
             progressBar.Style = ProgressBarStyle.Continuous;
-            // 默认为绿色
             progressBar.ForeColor = Color.Green;
+
+            // 设置操作开始的标志
+            isOperationInProgress = true;
 
             // 当前执行的行数
             int currentLine = 0;
@@ -146,26 +183,23 @@ namespace Ranshen_s_Flash
                         this.Invoke(new Action(() =>
                         {
                             UpdateTextBox(line);
-                            // 更新进度条
                             progressBar.Value = Math.Min(++currentLine, progressBar.Maximum);
                         }));
                     }
-                    // 等待进程结束
                     process.WaitForExit();
-
                     this.Invoke(new Action(() =>
                     {
                         if (process.ExitCode == 0)
                         {
-                            // 成功完成
                             progressBar.Value = progressBar.Maximum;
                         }
                         else
                         {
                             progressBar.Value = progressBar.Maximum;
-                            // 出现错误，显示红色
                             progressBar.ForeColor = Color.Red;
                         }
+                        // 清除操作标志
+                        isOperationInProgress = false;
                     }));
                 }
                 catch (Exception ex)
@@ -173,42 +207,12 @@ namespace Ranshen_s_Flash
                     this.Invoke(new Action(() =>
                     {
                         MessageBox.Show($"Failed to flash device: {ex.Message}");
-                        // 出现错误，显示红色
                         progressBar.ForeColor = Color.Red;
+                        // 清除操作标志
+                        isOperationInProgress = false;
                     }));
                 }
             });
-        }
-
-
-
-
-        private void ExecuteScript(string scriptName)
-        {
-            string exePath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
-            string scriptPath = System.IO.Path.Combine(exePath, scriptName);
-
-            Process process = new Process();
-            process.StartInfo.FileName = "cmd.exe";
-            process.StartInfo.Arguments = $"/c \"{scriptPath}\"";
-            process.StartInfo.UseShellExecute = false;
-            process.StartInfo.RedirectStandardOutput = true;
-            process.StartInfo.RedirectStandardError = true;
-            process.StartInfo.CreateNoWindow = true;
-            process.OutputDataReceived += new DataReceivedEventHandler(OutputDataReceived);
-            process.ErrorDataReceived += new DataReceivedEventHandler(OutputDataReceived);
-            process.Start();
-            process.BeginOutputReadLine();
-            process.BeginErrorReadLine();
-            process.WaitForExit();
-        }
-
-        private void OutputDataReceived(object sender, DataReceivedEventArgs e)
-        {
-            if (!string.IsNullOrEmpty(e.Data))
-            {
-                UpdateUI(e.Data);
-            }
         }
 
         private void UpdateUI(string text)
@@ -228,13 +232,18 @@ namespace Ranshen_s_Flash
             string exePath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
             string batPath = System.IO.Path.Combine(exePath, "bin\\resources\\install_drivers.bat");
 
+
             // 读取BAT文件行数
             int lineCount = File.ReadAllLines(batPath).Length;
             progressBar.Maximum = lineCount;
             progressBar.Value = 0;
             progressBar.Style = ProgressBarStyle.Continuous;
+
             // 默认为绿色
             progressBar.ForeColor = Color.Green;
+
+            // 设置操作开始的标志
+            isOperationInProgress = true;
 
             // 当前执行的行数
             int currentLine = 0;
@@ -279,6 +288,8 @@ namespace Ranshen_s_Flash
                             // 出现错误，显示红色
                             progressBar.ForeColor = Color.Red;
                         }
+                        // 清除操作标志
+                        isOperationInProgress = false;
                     }));
                 }
                 catch (Exception ex)
@@ -288,6 +299,8 @@ namespace Ranshen_s_Flash
                         MessageBox.Show($"Failed to install drivers: {ex.Message}");
                         // 出现错误，显示红色
                         progressBar.ForeColor = Color.Red;
+                        // 清除操作标志
+                        isOperationInProgress = false;
                     }));
                 }
             });
