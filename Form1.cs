@@ -93,6 +93,8 @@ namespace Ranshen_s_Flash
             textBoxOutput.ReadOnly = true;
             Controls.Add(textBoxOutput);
 
+            textBoxOutput.Text = "项目开源地址：https://github.com/Ranshen1209/Ranshen-s-Flash\n";
+
             progressBar = new ProgressBar();
             // 进度条位置位于文本框下方，留10px间隙
             progressBar.Location = new Point(10, textBoxOutput.Bottom + 10);
