@@ -1,64 +1,64 @@
-## KittenHyper Flash Tool
+## KittenHyper 刷机工具
 
-This tool is specifically developed for the KittenHyper project. It simplifies the process of installing new firmware, making it accessible even to users without extensive technical backgrounds.
+该工具专为 KittenHyper 项目而开发。它简化了安装新固件的流程，使其即使对于没有丰富技术背景的用户也容易上手。
 
-### README Translations
+### README 翻译版本
 
 ---
 
 - [English](README.md)
 - [中文](README.zh.md)
 
-### Getting Started
+### 入门指南
 
 ---
 
-The following guide will help you obtain a local copy of the project and prepare for development and testing.
+以下说明将帮助您在本地计算机上获取项目副本，并为开发和测试做好准备。
 
-### Prerequisites
-
----
-
-You need to install the following software and ensure that they are correctly set up:
-
-- Windows 10 1803 or later.
-- .NET Framework 4.7.2 or later must be installed on your machine.
-
-### Installation Steps
+### 先决条件
 
 ---
 
-The following step-by-step example will guide you through setting up the development environment:
+您需要安装以下软件并确保它们已正确安装：
 
-1. Clone the repository or download the ZIP file.
+- Windows 10 1803 或更高版本。
+- 机器上必须安装 .NET Framework 4.7.2 或更高版本。
+
+### 安装步骤
+
+---
+
+以下分步骤示例将指导您如何搭建开发环境：
+
+1. 克隆仓库或下载 ZIP 文件。
 
 ```bash
 git clone https://github.com/Ranshen1209/Ranshen-s-Flash.git
 ```
 
-2. Navigate to the directory you cloned or downloaded.
+2. 进入克隆或下载的目录。
 
-3. Build the project using Visual Studio.
+3. 使用 Visual Studio 构建项目。
 
-4. After building the project, the `flashbin` directory will be configured with the necessary files and folders.
+4. 构建项目后，`flashbin` 目录将配置好操作所需的文件和文件夹。
 
 ```bash
 /flashbin
-|-- /platform-tools           # Contains Google's adb and fastboot executables
-|-- /resources                # Contains resources needed by the tool
-|-- /drivers                  # Includes device drivers, particularly those from Xiaomi
+|-- /platform-tools           # 包含 Google 的 adb 和 fastboot 可执行文件
+|-- /resources                # 程序运行所需的内容
+|-- /drivers                  # 包含设备驱动程序，特别是来自小米的驱动
 ```
 
-### Usage
+### 如何应用
 
 ---
 
-#### KittenHyper_Stable Directory Structure
+#### KittenHyper_Stable 目录结构
 
 ```bash
 KittenHyper_Stable
 ├── flashbin
-│   ├── platform-tools    # adb and fastboot environment
+│   ├── platform-tools    # adb和fastboot环境
 │   │   ├── adb.exe
 │   │   ├── AdbWinApi.dll
 │   │   ├── AdbWinUsbApi.dll
@@ -73,10 +73,10 @@ KittenHyper_Stable
 │   │   ├── NOTICE.txt
 │   │   ├── source.properties
 │   │   └── sqlite3.exe
-│   ├── resources    # Resources needed by Ranshen's Flash
+│   ├── resources    # Ranshen's Flash所需资源
 │   │   ├── android_FILL0.ico
 │   │   └── install_drivers.bat
-│   └── thirdparty    # Driver directory
+│   └── thirdparty    # 驱动目录
 │       ├── Google
 │       │   ├── Android
 │       │   │   ├── adb.exe
@@ -145,7 +145,7 @@ KittenHyper_Stable
 │               └── QSaharaServer.exe
 ├── flash_all.bat
 ├── flash_all_except_storage.bat
-├── images    # System images
+├── images    # 系统镜像
 │   ├── abl.img
 │   ├── aop.img
 │   ├── aop_config.img
@@ -179,7 +179,7 @@ KittenHyper_Stable
 │   ├── xbl.img
 │   ├── xbl_config.img
 │   └── xbl_ramdump.img
-├── META-INF    # Update script
+├── META-INF    # 卡刷脚本
 │   └── com
 │       └── google
 │           └── android
@@ -188,7 +188,7 @@ KittenHyper_Stable
 └── super.img
 ```
 
-#### Driver Installation Script Example
+#### 安装驱动脚本示例
 
 ```bash
 @echo off
@@ -196,11 +196,11 @@ KittenHyper_Stable
 "C:\Windows\sysnative\pnputil.exe" /add-driver "%~dp0..\ThirdParty\Qualcomm\Driver\qcser.inf" /install
 ```
 
-#### Fastboot Flashing Script Example
+#### 线刷脚本示例
 
 ```bash
 set PATH=%~dp0flashbin\platform-tools;%PATH%
-fastboot %* getvar product 2>&1 | findstr /r /c:"^product: *marble" || echo Mismatched image and device
+fastboot %* getvar product 2>&1 | findstr /r /c:"^product: *marble" || echo Missmatching image and device
 fastboot %* getvar product 2>&1 | findstr /r /c:"^product: *marble" || exit /B 1
 fastboot %* erase boot_ab || @echo "Erase boot error" && exit /B 1
 fastboot %* flash abl_ab %~dp0images/abl.img || @echo "Flash abl error" && exit 1
@@ -240,7 +240,7 @@ fastboot %* set_active a || @echo "Set active a error" && exit 1
 fastboot %* reboot || @echo "Reboot error" && exit 1
 ```
 
-#### ZIP Update Script Example
+#### 卡刷脚本示例
 
 ```shell
 #!/sbin/sh
@@ -288,3 +288,4 @@ package_extract_file "images/misc.img" "${PartitionFilePath}/misc"
 
 exit 0
 ```
+
