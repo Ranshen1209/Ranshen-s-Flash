@@ -59,7 +59,7 @@ namespace Ranshen_s_Flash
         {
             this.Text = "Ranshen's Flash";
             this.MaximizeBox = false;
-            this.Icon = new Icon("bin/resources/android_FILL0.ico");
+            this.Icon = new Icon("flashbin/resources/android_FILL0.ico");
         }
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
@@ -237,7 +237,7 @@ namespace Ranshen_s_Flash
         private async void BtnInstallDrivers_Click(object sender, EventArgs e)
         {
             string exePath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
-            string batPath = System.IO.Path.Combine(exePath, "bin\\resources\\install_drivers.bat");
+            string batPath = System.IO.Path.Combine(exePath, "flashbin\\resources\\install_drivers.bat");
 
             int lineCount = File.ReadAllLines(batPath).Length;
             progressBar.Maximum = lineCount;
