@@ -28,9 +28,13 @@ namespace Ranshen_s_Flash
             AdjustFormSizeBasedOnDPI();
             SetupFormProperties();
             this.FormClosing += new FormClosingEventHandler(Form1_FormClosing);
+            this.Resize += new EventHandler(Form1_Resize);
         }
 
-        private void Form1_Load(object sender, EventArgs e) { }
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            AdjustControlSizesAndPositions(); // 在窗口加载时调整控件大小和位置
+        }
 
         private void AdjustFormSizeBasedOnDPI()
         {
@@ -73,60 +77,75 @@ namespace Ranshen_s_Flash
 
         private void InitializeCustomComponents()
         {
-            // 调整控件位置和大小
-            // 控件宽度为窗口宽度减20px
-            int controlWidth = this.ClientSize.Width - 20;
-            int controlHeight = this.ClientSize.Height;
-
             // 初始化下拉列表
             comboBoxScripts = new ComboBox();
             comboBoxScripts.DropDownStyle = ComboBoxStyle.DropDownList;
             comboBoxScripts.Items.Add("flash_all");
             comboBoxScripts.Items.Add("flash_all_except_storage");
             comboBoxScripts.Location = new Point(10, 15);
-            // 1/3宽度减去间隙
-            comboBoxScripts.Width = (controlWidth / 3) - 10;
             Controls.Add(comboBoxScripts);
 
-            // 调整按钮位置
+            // 初始化按钮
             btnInstallDrivers = new Button();
             btnInstallDrivers.Text = "安装驱动";
             btnInstallDrivers.Location = new Point(comboBoxScripts.Right + 10, 10);
-            // 1/8宽度减去间隙
-            btnInstallDrivers.Width = (controlWidth / 8);
-            btnInstallDrivers.Height = (controlHeight / 15);
-            btnInstallDrivers.Click += new EventHandler(BtnInstallDrivers_Click);
             Controls.Add(btnInstallDrivers);
 
             btnFlash = new Button();
             btnFlash.Text = "开始刷机";
             btnFlash.Location = new Point(btnInstallDrivers.Right + 10, 10);
-            // 1/8宽度减去间隙
-            btnFlash.Width = (controlWidth / 8);
-            btnFlash.Height = (controlHeight / 15);
-            btnFlash.Click += new EventHandler(BtnFlash_Click);
             Controls.Add(btnFlash);
 
+            // 初始化文本框
             textBoxOutput = new TextBox();
             textBoxOutput.Multiline = true;
             textBoxOutput.ScrollBars = ScrollBars.Vertical;
-            // 距离顶部50px开始
             textBoxOutput.Location = new Point(10, 60);
-            // 设置宽度为窗口宽度的60%
-            textBoxOutput.Width = (int)(this.ClientSize.Width * 0.6);
-            // 设置高度为窗口高度的50%
-            textBoxOutput.Height = (int)(this.ClientSize.Height * 0.5);
-            // 设置文本框为只读，用户不能编辑
             textBoxOutput.ReadOnly = true;
             Controls.Add(textBoxOutput);
 
             textBoxOutput.Text = "项目开源地址：https://github.com/Ranshen1209/Ranshen-s-Flash\n";
 
+            // 初始化进度条
             progressBar = new ProgressBar();
-            // 进度条位置位于文本框下方，留10px间隙
-            progressBar.Location = new Point(10, textBoxOutput.Bottom + 10);
-            progressBar.Width = (int)(this.ClientSize.Width * 0.6);
             Controls.Add(progressBar);
+
+            // 设置控件的 Anchor 属性
+            comboBoxScripts.Anchor = AnchorStyles.Top | AnchorStyles.Left;
+            btnInstallDrivers.Anchor = AnchorStyles.Top | AnchorStyles.Left;
+            btnFlash.Anchor = AnchorStyles.Top | AnchorStyles.Left;
+            textBoxOutput.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            progressBar.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+        }
+
+        private void Form1_Resize(object sender, EventArgs e)
+        {
+            AdjustControlSizesAndPositions();
+        }
+
+        private void AdjustControlSizesAndPositions()
+        {
+            int margin = 10;
+            int spacing = 10;
+
+            // 调整控件位置和大小
+            comboBoxScripts.Width = (this.ClientSize.Width / 3) - (2 * margin);
+            comboBoxScripts.Location = new Point(margin, margin);
+
+            btnInstallDrivers.Width = (this.ClientSize.Width / 4);
+            btnInstallDrivers.Height = comboBoxScripts.Height;
+            btnInstallDrivers.Location = new Point(comboBoxScripts.Right + spacing, margin);
+
+            btnFlash.Width = (this.ClientSize.Width / 4);
+            btnFlash.Height = comboBoxScripts.Height;
+            btnFlash.Location = new Point(btnInstallDrivers.Right + spacing, margin);
+
+            textBoxOutput.Width = this.ClientSize.Width - (2 * margin);
+            textBoxOutput.Height = this.ClientSize.Height - comboBoxScripts.Height - progressBar.Height - (4 * margin);
+            textBoxOutput.Location = new Point(margin, comboBoxScripts.Bottom + spacing);
+
+            progressBar.Width = this.ClientSize.Width - (2 * margin);
+            progressBar.Location = new Point(margin, textBoxOutput.Bottom + spacing);
         }
 
         private async void BtnFlash_Click(object sender, EventArgs e)
@@ -219,9 +238,6 @@ namespace Ranshen_s_Flash
             });
         }
 
-
-
-
         private void UpdateUI(string text)
         {
             if (textBoxOutput.InvokeRequired)
@@ -313,13 +329,10 @@ namespace Ranshen_s_Flash
             });
         }
 
-
-
         // 更新文本框
         private void UpdateTextBox(string text)
         {
             textBoxOutput.AppendText(text + Environment.NewLine);
         }
-
     }
 }
