@@ -20,6 +20,7 @@ namespace Ranshen_s_Flash
         private ProgressBar progressBar;
         private Button btnInstallDrivers;
         private bool isOperationInProgress = false;
+        private Process currentProcess = null;
 
         public Form1()
         {
@@ -72,6 +73,10 @@ namespace Ranshen_s_Flash
             {
                 MessageBox.Show("Operation in progress. Please wait until it's completed before closing the application.");
                 e.Cancel = true;
+            }
+            else if (currentProcess != null && !currentProcess.HasExited)
+            {
+                currentProcess.Kill();
             }
         }
 
@@ -176,7 +181,7 @@ namespace Ranshen_s_Flash
 
             await Task.Run(() =>
             {
-                Process process = new Process
+                currentProcess = new Process
                 {
                     StartInfo = new ProcessStartInfo
                     {
@@ -189,7 +194,7 @@ namespace Ranshen_s_Flash
                     }
                 };
 
-                process.OutputDataReceived += (s, args) =>
+                currentProcess.OutputDataReceived += (s, args) =>
                 {
                     if (!string.IsNullOrEmpty(args.Data))
                     {
@@ -200,7 +205,7 @@ namespace Ranshen_s_Flash
                     }
                 };
 
-                process.ErrorDataReceived += (s, args) =>
+                currentProcess.ErrorDataReceived += (s, args) =>
                 {
                     if (!string.IsNullOrEmpty(args.Data))
                     {
@@ -211,16 +216,16 @@ namespace Ranshen_s_Flash
                     }
                 };
 
-                process.Start();
-                process.BeginOutputReadLine();
-                process.BeginErrorReadLine();
-                process.WaitForExit();
-                process.CancelOutputRead();
-                process.CancelErrorRead();
+                currentProcess.Start();
+                currentProcess.BeginOutputReadLine();
+                currentProcess.BeginErrorReadLine();
+                currentProcess.WaitForExit();
+                currentProcess.CancelOutputRead();
+                currentProcess.CancelErrorRead();
 
                 this.Invoke(new Action(() =>
                 {
-                    if (process.ExitCode == 0)
+                    if (currentProcess.ExitCode == 0)
                     {
                         progressBar.Style = ProgressBarStyle.Continuous;
                         progressBar.Value = progressBar.Maximum;
@@ -234,6 +239,7 @@ namespace Ranshen_s_Flash
                     btnFlash.Enabled = true;
                     btnInstallDrivers.Enabled = true;
                     isOperationInProgress = false;
+                    currentProcess = null;
                 }));
             });
         }
@@ -267,7 +273,7 @@ namespace Ranshen_s_Flash
 
             await Task.Run(() =>
             {
-                Process process = new Process
+                currentProcess = new Process
                 {
                     StartInfo = new ProcessStartInfo
                     {
@@ -281,7 +287,7 @@ namespace Ranshen_s_Flash
                     }
                 };
 
-                process.OutputDataReceived += (s, args) =>
+                currentProcess.OutputDataReceived += (s, args) =>
                 {
                     if (!string.IsNullOrEmpty(args.Data))
                     {
@@ -293,7 +299,7 @@ namespace Ranshen_s_Flash
                     }
                 };
 
-                process.ErrorDataReceived += (s, args) =>
+                currentProcess.ErrorDataReceived += (s, args) =>
                 {
                     if (!string.IsNullOrEmpty(args.Data))
                     {
@@ -304,16 +310,16 @@ namespace Ranshen_s_Flash
                     }
                 };
 
-                process.Start();
-                process.BeginOutputReadLine();
-                process.BeginErrorReadLine();
-                process.WaitForExit();
-                process.CancelOutputRead();
-                process.CancelErrorRead();
+                currentProcess.Start();
+                currentProcess.BeginOutputReadLine();
+                currentProcess.BeginErrorReadLine();
+                currentProcess.WaitForExit();
+                currentProcess.CancelOutputRead();
+                currentProcess.CancelErrorRead();
 
                 this.Invoke(new Action(() =>
                 {
-                    if (process.ExitCode == 0)
+                    if (currentProcess.ExitCode == 0)
                     {
                         progressBar.Value = progressBar.Maximum;
                     }
@@ -325,6 +331,7 @@ namespace Ranshen_s_Flash
                     btnFlash.Enabled = true;
                     btnInstallDrivers.Enabled = true;
                     isOperationInProgress = false;
+                    currentProcess = null;
                 }));
             });
         }
