@@ -1,6 +1,6 @@
-## KittenHyper Flash Tool
+## Flash Tool
 
-This tool is developed specifically for the KittenHyper project. It simplifies the firmware installation process, making it accessible even for users without extensive technical background.
+This tool simplifies the firmware installation process, making it accessible even for users without extensive technical background.
 
 ### README Translation Version
 
