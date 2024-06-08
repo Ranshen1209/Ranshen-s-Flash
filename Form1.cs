@@ -1,12 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -94,11 +89,13 @@ namespace Ranshen_s_Flash
             btnInstallDrivers = new Button();
             btnInstallDrivers.Text = "安装驱动";
             btnInstallDrivers.Location = new Point(comboBoxScripts.Right + 10, 10);
+            btnInstallDrivers.Click += BtnInstallDrivers_Click;
             Controls.Add(btnInstallDrivers);
 
             btnFlash = new Button();
             btnFlash.Text = "开始刷机";
             btnFlash.Location = new Point(btnInstallDrivers.Right + 10, 10);
+            btnFlash.Click += BtnFlash_Click;
             Controls.Add(btnFlash);
 
             // 初始化文本框
@@ -336,7 +333,6 @@ namespace Ranshen_s_Flash
             });
         }
 
-        // 更新文本框
         private void UpdateTextBox(string text)
         {
             textBoxOutput.AppendText(text + Environment.NewLine);
