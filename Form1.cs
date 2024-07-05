@@ -208,7 +208,7 @@ namespace Ranshen_s_Flash
                     {
                         this.Invoke(new Action(() =>
                         {
-                            UpdateTextBox("Error: " + args.Data);
+                            UpdateTextBox(args.Data);
                         }));
                     }
                 };
@@ -302,7 +302,7 @@ namespace Ranshen_s_Flash
                     {
                         this.Invoke(new Action(() =>
                         {
-                            UpdateTextBox("Error: " + args.Data);
+                            UpdateTextBox(args.Data);
                         }));
                     }
                 };
