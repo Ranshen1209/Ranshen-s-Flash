@@ -100,13 +100,14 @@ namespace Ranshen_s_Flash
 
             // 初始化文本框
             textBoxOutput = new TextBox();
-            textBoxOutput.Multiline = true;
+            textBoxOutput.Multiline = true; // 确保多行属性在设置文本之前就已经被设置
             textBoxOutput.ScrollBars = ScrollBars.Vertical;
             textBoxOutput.Location = new Point(10, 60);
             textBoxOutput.ReadOnly = true;
+            textBoxOutput.Size = new Size(400, 300); // 确保文本框大小足够大，便于显示多行
             Controls.Add(textBoxOutput);
 
-            textBoxOutput.Text = "项目开源地址：https://github.com/Ranshen1209/Ranshen-s-Flash\n";
+            textBoxOutput.Text = "项目开源地址：https://github.com/Ranshen1209/Ranshen-s-Flash" + Environment.NewLine;
 
             // 初始化进度条
             progressBar = new ProgressBar();
@@ -119,6 +120,7 @@ namespace Ranshen_s_Flash
             textBoxOutput.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             progressBar.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
         }
+
 
         private void Form1_Resize(object sender, EventArgs e)
         {
