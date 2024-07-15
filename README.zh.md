@@ -340,65 +340,47 @@ exit 0
 #### 卡刷脚本示例
 
 ```shell
-#!/sbin/sh
+#!/sbin/bash
 
-set -e
-ZIP="$3"
-ZIPNAME="${ZIP##*/}"
-OUTFD="/proc/self/fd/$2"
+OUTFD=/proc/self/fd/$2
+ZIPFILE="$3"
+ZIPNAME=${ZIPFILE##*/}
 
-# Clean up /tmp directory and create a new one
 [ -d /tmp ] && rm -rf /tmp
 mkdir -p /tmp
 
-# Unzip zstd executable to /tmp directory
-unzip "$ZIP" bin/zstd -d /tmp
+unzip "$ZIPFILE" flashbin/zstd/zstd -d /tmp
 chmod -R 0755 /tmp
 
 ui_print(){
-    echo -e "ui_print $1\nui_print" > "$OUTFD"
+    echo -e "ui_print $1\nui_print" > $OUTFD
 }
 
-package_extract_file(){
-    if unzip -l "$ZIP" "$1" >/dev/null 2>&1; then
-        unzip -p "$ZIP" "$1" > "$2"
-    else
-        ui_print "Error: Cannot find $1 in $ZIP"
-        exit 1
-    fi
+package_extract_file() {
+    unzip -p "$ZIPFILE" $1 >$2
 }
 
 package_extract_zstd() {
-    if unzip -l "$ZIP" "$1" >/dev/null 2>&1; then
-        unzip -p "$ZIP" "$1" | /tmp/bin/zstd -k -d > "$2"
-    else
-        ui_print "Error: Cannot find $1 in $ZIP"
-        exit 1
-    fi
+    unzip -p "$ZIPFILE" $1 | /tmp/flashbin/zstd/zstd -k -d >$2
 }
 
-PartitionFilePath="/dev/block/by-name"
+PartitionFilePath=/dev/block/bootdevice/by-name/
 
 flash_partition() {
-    local partition="$1"
+    local partition=$1
     ui_print "Flashing $partition partition"
     package_extract_file "images/$partition.img" "${PartitionFilePath}/${partition}_a"
     package_extract_file "images/$partition.img" "${PartitionFilePath}/${partition}_b"
 }
 
-# Output script information
+ui_print " "
 ui_print "$ZIPNAME"
 ui_print "Produced by Ranshen."
 ui_print " "
-ui_print " "
 
-# Flash each partition
 for partition in abl xbl xbl_config shrm aop aop_config tz devcfg featenabler hyp uefi uefisecapp modem bluetooth dsp keymaster qupfw cpucp xbl_ramdump imagefv vendor_boot dtbo vbmeta vbmeta_system recovery; do
     flash_partition "$partition"
 done
-
-ui_print "Flashing rescue partition"
-package_extract_file "images/rescue.img" "${PartitionFilePath}/rescue"
 
 ui_print "Flashing super partition"
 package_extract_zstd "super.img.zst" "${PartitionFilePath}/super"
@@ -406,22 +388,17 @@ package_extract_zstd "super.img.zst" "${PartitionFilePath}/super"
 ui_print "Flashing cust partition"
 package_extract_file "images/cust.img" "${PartitionFilePath}/cust"
 
-ui_print "Flashing misc partition"
-package_extract_file "images/misc.img" "${PartitionFilePath}/misc"
+ui_print "Flashing logo partition"
+package_extract_file "images/logo.img" "${PartitionFilePath}/logo"
 
-# Clear cache
 ui_print "Clearing cache."
 rm -rf /data/cache/
 rm -rf /data/dalvik-cache/
 rm -rf /data/system/package_cache/
-
-# Clear temporary directory
-ui_print "Clearing /tmp directory."
-rm -rf /tmp
+[ -d /tmp ] && rm -rf /tmp
 
 ui_print " "
 ui_print "Flashing completed."
-
 exit 0
 ```
 
