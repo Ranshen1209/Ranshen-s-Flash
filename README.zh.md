@@ -76,10 +76,14 @@ for /f "tokens=2 delims=: " %%a in ('fastboot %* getvar product 2^>^&1 ^| findst
     )
 )
 
+REM Ensure %~dp0 does not end with a backslash
+set scriptDir=%~dp0
+if "%scriptDir:~-1%"=="\" set scriptDir=%scriptDir:~0,-1%
+
 REM Check and remove existing super.img if exists
-if exist "%~dp0images\super.img" (
+if exist "%scriptDir%\images\super.img" (
     echo Removing existing super.img
-    del "%~dp0images\super.img" || (
+    del "%scriptDir%\images\super.img" || (
         echo "Failed to delete existing super.img"
         exit /B 1
     )
@@ -87,14 +91,14 @@ if exist "%~dp0images\super.img" (
 
 REM Decompress the super.img.zst file to the super.img file
 echo Decompressing super.img.zst to super.img
-zstd -d "%~dp0/super.img.zst" -o "%~dp0images/super.img" || (
+zstd -d "%scriptDir%\super.img.zst" -o "%scriptDir%\images\super.img" || (
     echo "Decompression error"
     exit /B 1
 )
 
 REM Flash super.img
 echo Flashing super partition
-fastboot %* flash super "%~dp0images/super.img" || (
+fastboot %* flash super "%scriptDir%\images\super.img" || (
     echo "Flash super error"
     exit /B 1
 )
@@ -108,169 +112,169 @@ fastboot %* erase boot_ab || (
 
 REM Flash individual partitions
 echo Flashing abl_ab
-fastboot %* flash abl_ab "%~dp0images/abl.img" || (
+fastboot %* flash abl_ab "%scriptDir%\images\abl.img" || (
     echo "Flash abl_ab error"
     exit /B 1
 )
 
 echo Flashing xbl_ab
-fastboot %* flash xbl_ab "%~dp0images/xbl.img" || (
+fastboot %* flash xbl_ab "%scriptDir%\images\xbl.img" || (
     echo "Flash xbl_ab error"
     exit /B 1
 )
 
 echo Flashing xbl_config_ab
-fastboot %* flash xbl_config_ab "%~dp0images/xbl_config.img" || (
+fastboot %* flash xbl_config_ab "%scriptDir%\images\xbl_config.img" || (
     echo "Flash xbl_config_ab error"
     exit /B 1
 )
 
 echo Flashing shrm_ab
-fastboot %* flash shrm_ab "%~dp0images/shrm.img" || (
+fastboot %* flash shrm_ab "%scriptDir%\images\shrm.img" || (
     echo "Flash shrm_ab error"
     exit /B 1
 )
 
 echo Flashing aop_ab
-fastboot %* flash aop_ab "%~dp0images/aop.img" || (
+fastboot %* flash aop_ab "%scriptDir%\images\aop.img" || (
     echo "Flash aop_ab error"
     exit /B 1
 )
 
 echo Flashing aop_config_ab
-fastboot %* flash aop_config_ab "%~dp0images/aop_config.img" || (
+fastboot %* flash aop_config_ab "%scriptDir%\images\aop_config.img" || (
     echo "Flash aop_config_ab error"
     exit /B 1
 )
 
 echo Flashing tz_ab
-fastboot %* flash tz_ab "%~dp0images/tz.img" || (
+fastboot %* flash tz_ab "%scriptDir%\images\tz.img" || (
     echo "Flash tz_ab error"
     exit /B 1
 )
 
 echo Flashing devcfg_ab
-fastboot %* flash devcfg_ab "%~dp0images/devcfg.img" || (
+fastboot %* flash devcfg_ab "%scriptDir%\images\devcfg.img" || (
     echo "Flash devcfg_ab error"
     exit /B 1
 )
 
 echo Flashing featenabler_ab
-fastboot %* flash featenabler_ab "%~dp0images/featenabler.img" || (
+fastboot %* flash featenabler_ab "%scriptDir%\images\featenabler.img" || (
     echo "Flash featenabler_ab error"
     exit /B 1
 )
 
 echo Flashing hyp_ab
-fastboot %* flash hyp_ab "%~dp0images/hyp.img" || (
+fastboot %* flash hyp_ab "%scriptDir%\images\hyp.img" || (
     echo "Flash hyp_ab error"
     exit /B 1
 )
 
 echo Flashing uefi_ab
-fastboot %* flash uefi_ab "%~dp0images/uefi.img" || (
+fastboot %* flash uefi_ab "%scriptDir%\images\uefi.img" || (
     echo "Flash uefi_ab error"
     exit /B 1
 )
 
 echo Flashing uefisecapp_ab
-fastboot %* flash uefisecapp_ab "%~dp0images/uefisecapp.img" || (
+fastboot %* flash uefisecapp_ab "%scriptDir%\images\uefisecapp.img" || (
     echo "Flash uefisecapp_ab error"
     exit /B 1
 )
 
 echo Flashing modem_ab
-fastboot %* flash modem_ab "%~dp0images/modem.img" || (
+fastboot %* flash modem_ab "%scriptDir%\images\modem.img" || (
     echo "Flash modem_ab error"
     exit /B 1
 )
 
 echo Flashing bluetooth_ab
-fastboot %* flash bluetooth_ab "%~dp0images/bluetooth.img" || (
+fastboot %* flash bluetooth_ab "%scriptDir%\images\bluetooth.img" || (
     echo "Flash bluetooth_ab error"
     exit /B 1
 )
 
 echo Flashing dsp_ab
-fastboot %* flash dsp_ab "%~dp0images/dsp.img" || (
+fastboot %* flash dsp_ab "%scriptDir%\images\dsp.img" || (
     echo "Flash dsp_ab error"
     exit /B 1
 )
 
 echo Flashing keymaster_ab
-fastboot %* flash keymaster_ab "%~dp0images/keymaster.img" || (
+fastboot %* flash keymaster_ab "%scriptDir%\images\keymaster.img" || (
     echo "Flash keymaster_ab error"
     exit /B 1
 )
 
 echo Flashing qupfw_ab
-fastboot %* flash qupfw_ab "%~dp0images/qupfw.img" || (
+fastboot %* flash qupfw_ab "%scriptDir%\images\qupfw.img" || (
     echo "Flash qupfw_ab error"
     exit /B 1
 )
 
 echo Flashing cpucp_ab
-fastboot %* flash cpucp_ab "%~dp0images/cpucp.img" || (
+fastboot %* flash cpucp_ab "%scriptDir%\images\cpucp.img" || (
     echo "Flash cpucp_ab error"
     exit /B 1
 )
 
 echo Flashing rescue
-fastboot %* flash rescue "%~dp0images/rescue.img" || (
+fastboot %* flash rescue "%scriptDir%\images\rescue.img" || (
     echo "Flash rescue error"
     exit /B 1
 )
 
 echo Flashing xbl_ramdump_ab
-fastboot %* flash xbl_ramdump_ab "%~dp0images/xbl_ramdump.img" || (
+fastboot %* flash xbl_ramdump_ab "%scriptDir%\images\xbl_ramdump.img" || (
     echo "Flash xbl_ramdump_ab error"
     exit /B 1
 )
 
 echo Flashing imagefv_ab
-fastboot %* flash imagefv_ab "%~dp0images/imagefv.img" || (
+fastboot %* flash imagefv_ab "%scriptDir%\images\imagefv.img" || (
     echo "Flash imagefv_ab error"
     exit /B 1
 )
 
 echo Flashing vendor_boot_ab
-fastboot %* flash vendor_boot_ab "%~dp0images/vendor_boot.img" || (
+fastboot %* flash vendor_boot_ab "%scriptDir%\images\vendor_boot.img" || (
     echo "Flash vendor_boot_ab error"
     exit /B 1
 )
 
 echo Flashing dtbo_ab
-fastboot %* flash dtbo_ab "%~dp0images/dtbo.img" || (
+fastboot %* flash dtbo_ab "%scriptDir%\images\dtbo.img" || (
     echo "Flash dtbo_ab error"
     exit /B 1
 )
 
 echo Flashing vbmeta_ab
-fastboot %* flash vbmeta_ab "%~dp0images/vbmeta.img" || (
+fastboot %* flash vbmeta_ab "%scriptDir%\images\vbmeta.img" || (
     echo "Flash vbmeta_ab error"
     exit /B 1
 )
 
 echo Flashing vbmeta_system_ab
-fastboot %* flash vbmeta_system_ab "%~dp0images/vbmeta_system.img" || (
+fastboot %* flash vbmeta_system_ab "%scriptDir%\images\vbmeta_system.img" || (
     echo "Flash vbmeta_system_ab error"
     exit /B 1
 )
 
 echo Flashing cust
-fastboot %* flash cust "%~dp0images/cust.img" || (
+fastboot %* flash cust "%scriptDir%\images\cust.img" || (
     echo "Flash cust error"
     exit /B 1
 )
 
 echo Flashing recovery_ab
-fastboot %* flash recovery_ab "%~dp0images/recovery.img" || (
+fastboot %* flash recovery_ab "%scriptDir%\images\recovery.img" || (
     echo "Flash recovery_ab error"
     exit /B 1
 )
 
 echo Flashing boot_ab
-fastboot %* flash boot_ab "%~dp0images/boot.img" || (
+fastboot %* flash boot_ab "%scriptDir%\images\boot.img" || (
     echo "Flash boot_ab error"
     exit /B 1
 )
@@ -282,26 +286,26 @@ fastboot %* erase imagefv_ab || (
     exit /B 1
 )
 echo Flashing imagefv_ab partition
-fastboot %* flash imagefv_ab "%~dp0images/imagefv.img" || (
+fastboot %* flash imagefv_ab "%scriptDir%\images\imagefv.img" || (
     echo "Flash imagefv error"
     exit /B 1
 )
 
 REM Flash misc partition
 echo Flashing misc partition
-fastboot %* flash misc "%~dp0images/misc.img" || (
+fastboot %* flash misc "%scriptDir%\images\misc.img" || (
     echo "Flash misc error"
     exit /B 1
 )
 
 REM Flash vbmeta.img and vbmeta_system.img with verity and verification disabled
 echo Flashing vbmeta partition with verity and verification disabled
-fastboot %* --disable-verity --disable-verification flash vbmeta "%~dp0images/vbmeta.img" || (
+fastboot %* --disable-verity --disable-verification flash vbmeta "%scriptDir%\images\vbmeta.img" || (
     echo "Flash vbmeta error"
     exit /B 1
 )
 echo Flashing vbmeta_system partition with verity and verification disabled
-fastboot %* --disable-verity --disable-verification flash vbmeta_system "%~dp0images/vbmeta_system.img" || (
+fastboot %* --disable-verity --disable-verification flash vbmeta_system "%scriptDir%\images\vbmeta_system.img" || (
     echo "Flash vbmeta_system error"
     exit /B 1
 )
@@ -314,9 +318,9 @@ fastboot %* set_active a || (
 )
 
 REM Remove the decompressed super.img file if exists
-if exist "%~dp0images\super.img" (
+if exist "%scriptDir%\images\super.img" (
     echo Removing decompressed super.img file
-    del "%~dp0images\super.img" || (
+    del "%scriptDir%\images\super.img" || (
         echo "Failed to delete super.img"
         exit /B 1
     )
