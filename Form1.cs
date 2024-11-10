@@ -9,13 +9,13 @@ namespace Ranshen_s_Flash
 {
     public partial class Form1 : Form
     {
-        private Button btnFlash;
-        private ComboBox comboBoxScripts;
-        private TextBox textBoxOutput;
-        private ProgressBar progressBar;
-        private Button btnInstallDrivers;
-        private bool isOperationInProgress = false;
-        private Process currentProcess = null;
+        private Button _btnFlash;
+        private ComboBox _comboBoxScripts;
+        private TextBox _textBoxOutput;
+        private ProgressBar _progressBar;
+        private Button _btnInstallDrivers;
+        private bool _isOperationInProgress;
+        private Process _currentProcess;
 
         public Form1()
         {
@@ -23,102 +23,91 @@ namespace Ranshen_s_Flash
             InitializeCustomComponents();
             AdjustFormSizeBasedOnDPI();
             SetupFormProperties();
-            this.FormClosing += new FormClosingEventHandler(Form1_FormClosing);
-            this.Resize += new EventHandler(Form1_Resize);
+            FormClosing += (Form1_FormClosing);
+            Resize += (Form1_Resize);
         }
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            AdjustControlSizesAndPositions(); // 在窗口加载时调整控件大小和位置
+            AdjustControlSizesAndPositions();
         }
 
         private void AdjustFormSizeBasedOnDPI()
         {
-            // 设置窗口在屏幕中心打开
-            this.StartPosition = FormStartPosition.CenterScreen;
-
-            // 创建 Graphics 对象以获取当前 DPI 设置
-            Graphics graphics = this.CreateGraphics();
+            StartPosition = FormStartPosition.CenterScreen;
+            
+            Graphics graphics = CreateGraphics();
             float dpiX = graphics.DpiX;
-            float dpiY = graphics.DpiY;
-
-            // 默认屏幕DPI为96
             float scale = dpiX / 96;
 
-            // 根据DPI调整窗口大小
             Rectangle screen = Screen.PrimaryScreen.Bounds;
-            int baseWidth = screen.Width * 26 / 100;  // 设计时的基准宽度
-            int baseHeight = screen.Height * 30 / 100; // 设计时的基准高度
-            this.ClientSize = new Size((int)(baseWidth * scale), (int)(baseHeight * scale));
+            int baseWidth = screen.Width * 26 / 100;
+            int baseHeight = screen.Height * 30 / 100;
+            ClientSize = new Size((int)(baseWidth * scale), (int)(baseHeight * scale));
 
-            // 确保释放 Graphics 资源
             graphics.Dispose();
         }
 
         private void SetupFormProperties()
         {
-            this.Text = "Ranshen's Flash";
-            this.MaximizeBox = false;
-            this.Icon = new Icon("flashbin/resources/android_FILL0.ico");
+            Text = Properties.Resources.AppTitle;
+            MaximizeBox = false;
+            Icon = new Icon("flashbin/resources/android_FILL0.ico");
         }
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if (isOperationInProgress)
+            if (_isOperationInProgress)
             {
-                MessageBox.Show("Operation in progress. Please wait until it's completed before closing the application.");
+                MessageBox.Show(Properties.Resources.OperationInProgressMessage);
                 e.Cancel = true;
             }
-            else if (currentProcess != null && !currentProcess.HasExited)
+            else if (_currentProcess != null && !_currentProcess.HasExited)
             {
-                currentProcess.Kill();
+                _currentProcess.Kill();
             }
         }
 
         private void InitializeCustomComponents()
         {
-            // 初始化下拉列表
-            comboBoxScripts = new ComboBox();
-            comboBoxScripts.DropDownStyle = ComboBoxStyle.DropDownList;
-            comboBoxScripts.Items.Add("flash_all");
-            comboBoxScripts.Items.Add("flash_all_except_storage");
-            comboBoxScripts.Location = new Point(10, 15);
-            Controls.Add(comboBoxScripts);
+            _comboBoxScripts = new ComboBox();
+            _comboBoxScripts.DropDownStyle = ComboBoxStyle.DropDownList;
+            _comboBoxScripts.Items.Add("flash_all");
+            _comboBoxScripts.Items.Add("flash_all_except_storage");
+            _comboBoxScripts.Location = new Point(10, 15);
+            Controls.Add(_comboBoxScripts);
 
-            // 初始化按钮
-            btnInstallDrivers = new Button();
-            btnInstallDrivers.Text = "安装驱动";
-            btnInstallDrivers.Location = new Point(comboBoxScripts.Right + 10, 10);
-            btnInstallDrivers.Click += BtnInstallDrivers_Click;
-            Controls.Add(btnInstallDrivers);
+            _btnInstallDrivers = new Button();
+            _btnInstallDrivers.Text = Properties.Resources.InstallDriver;
+            _btnInstallDrivers.Location = new Point(_comboBoxScripts.Right + 10, 10);
+            _btnInstallDrivers.Click += BtnInstallDrivers_Click;
+            Controls.Add(_btnInstallDrivers);
 
-            btnFlash = new Button();
-            btnFlash.Text = "开始刷机";
-            btnFlash.Location = new Point(btnInstallDrivers.Right + 10, 10);
-            btnFlash.Click += BtnFlash_Click;
-            Controls.Add(btnFlash);
+            _btnFlash = new Button();
+            _btnFlash.Text = Properties.Resources.StartFlashing;
+            _btnFlash.Location = new Point(_btnInstallDrivers.Right + 10, 10);
+            _btnFlash.Click += BtnFlash_Click;
+            Controls.Add(_btnFlash);
 
-            // 初始化文本框
-            textBoxOutput = new TextBox();
-            textBoxOutput.Multiline = true; // 确保多行属性在设置文本之前就已经被设置
-            textBoxOutput.ScrollBars = ScrollBars.Vertical;
-            textBoxOutput.Location = new Point(10, 60);
-            textBoxOutput.ReadOnly = true;
-            textBoxOutput.Size = new Size(400, 300); // 确保文本框大小足够大，便于显示多行
-            Controls.Add(textBoxOutput);
+            _textBoxOutput = new TextBox();
+            _textBoxOutput.Multiline = true;
+            _textBoxOutput.ScrollBars = ScrollBars.Vertical;
+            _textBoxOutput.Location = new Point(10, 60);
+            _textBoxOutput.ReadOnly = true;
+            _textBoxOutput.Size = new Size(400, 300);
+            Controls.Add(_textBoxOutput);
 
-            textBoxOutput.Text = "项目开源地址：https://github.com/Ranshen1209/Ranshen-s-Flash" + Environment.NewLine;
+            string url = "https://github.com/Ranshen1209/Ranshen-s-Flash";
+            _textBoxOutput.Text = string.Format(Properties.Resources.ProjectOpenSourceAddress, url) + Environment.NewLine;
 
-            // 初始化进度条
-            progressBar = new ProgressBar();
-            Controls.Add(progressBar);
+            _progressBar = new ProgressBar();
+            Controls.Add(_progressBar);
 
-            // 设置控件的 Anchor 属性
-            comboBoxScripts.Anchor = AnchorStyles.Top | AnchorStyles.Left;
-            btnInstallDrivers.Anchor = AnchorStyles.Top | AnchorStyles.Left;
-            btnFlash.Anchor = AnchorStyles.Top | AnchorStyles.Left;
-            textBoxOutput.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            progressBar.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            _comboBoxScripts.Anchor = AnchorStyles.Top | AnchorStyles.Left;
+            _btnInstallDrivers.Anchor = AnchorStyles.Top | AnchorStyles.Left;
+            _btnFlash.Anchor = AnchorStyles.Top | AnchorStyles.Left;
+            _textBoxOutput.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            _progressBar.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
         }
 
 
@@ -132,55 +121,54 @@ namespace Ranshen_s_Flash
             int margin = 10;
             int spacing = 10;
 
-            // 调整控件位置和大小
-            comboBoxScripts.Width = (this.ClientSize.Width / 3) - (2 * margin);
-            comboBoxScripts.Location = new Point(margin, margin);
+            _comboBoxScripts.Width = (ClientSize.Width / 3) - (2 * margin);
+            _comboBoxScripts.Location = new Point(margin, margin);
 
-            btnInstallDrivers.Width = (this.ClientSize.Width / 4);
-            btnInstallDrivers.Height = comboBoxScripts.Height;
-            btnInstallDrivers.Location = new Point(comboBoxScripts.Right + spacing, margin);
+            _btnInstallDrivers.Width = (ClientSize.Width / 4);
+            _btnInstallDrivers.Height = _comboBoxScripts.Height;
+            _btnInstallDrivers.Location = new Point(_comboBoxScripts.Right + spacing, margin);
 
-            btnFlash.Width = (this.ClientSize.Width / 4);
-            btnFlash.Height = comboBoxScripts.Height;
-            btnFlash.Location = new Point(btnInstallDrivers.Right + spacing, margin);
+            _btnFlash.Width = (ClientSize.Width / 4);
+            _btnFlash.Height = _comboBoxScripts.Height;
+            _btnFlash.Location = new Point(_btnInstallDrivers.Right + spacing, margin);
 
-            textBoxOutput.Width = this.ClientSize.Width - (2 * margin);
-            textBoxOutput.Height = this.ClientSize.Height - comboBoxScripts.Height - progressBar.Height - (4 * margin);
-            textBoxOutput.Location = new Point(margin, comboBoxScripts.Bottom + spacing);
+            _textBoxOutput.Width = ClientSize.Width - (2 * margin);
+            _textBoxOutput.Height = ClientSize.Height - _comboBoxScripts.Height - _progressBar.Height - (4 * margin);
+            _textBoxOutput.Location = new Point(margin, _comboBoxScripts.Bottom + spacing);
 
-            progressBar.Width = this.ClientSize.Width - (2 * margin);
-            progressBar.Location = new Point(margin, textBoxOutput.Bottom + spacing);
+            _progressBar.Width = ClientSize.Width - (2 * margin);
+            _progressBar.Location = new Point(margin, _textBoxOutput.Bottom + spacing);
         }
 
         private async void BtnFlash_Click(object sender, EventArgs e)
         {
-            if (comboBoxScripts.SelectedItem == null)
+            if (_comboBoxScripts.SelectedItem == null)
             {
-                MessageBox.Show("Please select a script to flash.");
+                MessageBox.Show(Properties.Resources.SelectScriptMessage);
                 return;
             }
 
-            string selectedScript = comboBoxScripts.SelectedItem.ToString();
+            string selectedScript = _comboBoxScripts.SelectedItem.ToString();
             string batFileName = selectedScript + ".bat";
-            string exePath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
-            string batPath = System.IO.Path.Combine(exePath, batFileName);
+            string exePath = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) ?? string.Empty;
+            string batPath = Path.Combine(exePath, batFileName);
 
             if (!File.Exists(batPath))
             {
-                MessageBox.Show("The selected script file does not exist. Please verify the files and try again.");
+                MessageBox.Show(Properties.Resources.ScriptFileNotFoundMessage);
                 return;
             }
 
-            progressBar.Value = 0;
-            progressBar.Style = ProgressBarStyle.Marquee;
+            _progressBar.Value = 0;
+            _progressBar.Style = ProgressBarStyle.Marquee;
 
-            isOperationInProgress = true;
-            btnFlash.Enabled = false;
-            btnInstallDrivers.Enabled = false;
+            _isOperationInProgress = true;
+            _btnFlash.Enabled = false;
+            _btnInstallDrivers.Enabled = false;
 
             await Task.Run(() =>
             {
-                currentProcess = new Process
+                _currentProcess = new Process
                 {
                     StartInfo = new ProcessStartInfo
                     {
@@ -193,86 +181,74 @@ namespace Ranshen_s_Flash
                     }
                 };
 
-                currentProcess.OutputDataReceived += (s, args) =>
+                _currentProcess.OutputDataReceived += (s, args) =>
                 {
                     if (!string.IsNullOrEmpty(args.Data))
                     {
-                        this.Invoke(new Action(() =>
+                        Invoke(new Action(() =>
                         {
                             UpdateTextBox(args.Data);
                         }));
                     }
                 };
 
-                currentProcess.ErrorDataReceived += (s, args) =>
+                _currentProcess.ErrorDataReceived += (s, args) =>
                 {
                     if (!string.IsNullOrEmpty(args.Data))
                     {
-                        this.Invoke(new Action(() =>
+                        Invoke(new Action(() =>
                         {
                             UpdateTextBox(args.Data);
                         }));
                     }
                 };
 
-                currentProcess.Start();
-                currentProcess.BeginOutputReadLine();
-                currentProcess.BeginErrorReadLine();
-                currentProcess.WaitForExit();
-                currentProcess.CancelOutputRead();
-                currentProcess.CancelErrorRead();
+                _currentProcess.Start();
+                _currentProcess.BeginOutputReadLine();
+                _currentProcess.BeginErrorReadLine();
+                _currentProcess.WaitForExit();
+                _currentProcess.CancelOutputRead();
+                _currentProcess.CancelErrorRead();
 
-                this.Invoke(new Action(() =>
+                Invoke(new Action(() =>
                 {
-                    if (currentProcess.ExitCode == 0)
+                    if (_currentProcess.ExitCode == 0)
                     {
-                        progressBar.Style = ProgressBarStyle.Continuous;
-                        progressBar.Value = progressBar.Maximum;
+                        _progressBar.Style = ProgressBarStyle.Continuous;
+                        _progressBar.Value = _progressBar.Maximum;
                     }
                     else
                     {
-                        progressBar.Style = ProgressBarStyle.Continuous;
-                        progressBar.Value = 0;
-                        progressBar.ForeColor = Color.Red;
+                        _progressBar.Style = ProgressBarStyle.Continuous;
+                        _progressBar.Value = 0;
+                        _progressBar.ForeColor = Color.Red;
                     }
-                    btnFlash.Enabled = true;
-                    btnInstallDrivers.Enabled = true;
-                    isOperationInProgress = false;
-                    currentProcess = null;
+                    _btnFlash.Enabled = true;
+                    _btnInstallDrivers.Enabled = true;
+                    _isOperationInProgress = false;
+                    _currentProcess = null;
                 }));
             });
         }
 
-        private void UpdateUI(string text)
-        {
-            if (textBoxOutput.InvokeRequired)
-            {
-                textBoxOutput.Invoke(new Action<string>(UpdateUI), new object[] { text });
-            }
-            else
-            {
-                textBoxOutput.AppendText(text + Environment.NewLine);
-            }
-        }
-
         private async void BtnInstallDrivers_Click(object sender, EventArgs e)
         {
-            string exePath = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
-            string batPath = System.IO.Path.Combine(exePath, "flashbin\\resources\\install_drivers.bat");
+            string exePath = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location) ?? string.Empty;
+            string batPath = Path.Combine(exePath, "flashbin\\resources\\install_drivers.bat");
 
             int lineCount = File.ReadAllLines(batPath).Length;
-            progressBar.Maximum = lineCount;
-            progressBar.Value = 0;
-            progressBar.Style = ProgressBarStyle.Continuous;
-            progressBar.ForeColor = Color.Green;
+            _progressBar.Maximum = lineCount;
+            _progressBar.Value = 0;
+            _progressBar.Style = ProgressBarStyle.Continuous;
+            _progressBar.ForeColor = Color.Green;
 
-            isOperationInProgress = true;
-            btnFlash.Enabled = false;
-            btnInstallDrivers.Enabled = false;
+            _isOperationInProgress = true;
+            _btnFlash.Enabled = false;
+            _btnInstallDrivers.Enabled = false;
 
             await Task.Run(() =>
             {
-                currentProcess = new Process
+                _currentProcess = new Process
                 {
                     StartInfo = new ProcessStartInfo
                     {
@@ -286,58 +262,58 @@ namespace Ranshen_s_Flash
                     }
                 };
 
-                currentProcess.OutputDataReceived += (s, args) =>
+                _currentProcess.OutputDataReceived += (s, args) =>
                 {
                     if (!string.IsNullOrEmpty(args.Data))
                     {
-                        this.Invoke(new Action(() =>
+                        Invoke(new Action(() =>
                         {
                             UpdateTextBox(args.Data);
-                            progressBar.Value = Math.Min(++lineCount, progressBar.Maximum);
+                            _progressBar.Value = Math.Min(++lineCount, _progressBar.Maximum);
                         }));
                     }
                 };
 
-                currentProcess.ErrorDataReceived += (s, args) =>
+                _currentProcess.ErrorDataReceived += (s, args) =>
                 {
                     if (!string.IsNullOrEmpty(args.Data))
                     {
-                        this.Invoke(new Action(() =>
+                        Invoke(new Action(() =>
                         {
                             UpdateTextBox(args.Data);
                         }));
                     }
                 };
 
-                currentProcess.Start();
-                currentProcess.BeginOutputReadLine();
-                currentProcess.BeginErrorReadLine();
-                currentProcess.WaitForExit();
-                currentProcess.CancelOutputRead();
-                currentProcess.CancelErrorRead();
+                _currentProcess.Start();
+                _currentProcess.BeginOutputReadLine();
+                _currentProcess.BeginErrorReadLine();
+                _currentProcess.WaitForExit();
+                _currentProcess.CancelOutputRead();
+                _currentProcess.CancelErrorRead();
 
-                this.Invoke(new Action(() =>
+                Invoke(new Action(() =>
                 {
-                    if (currentProcess.ExitCode == 0)
+                    if (_currentProcess.ExitCode == 0)
                     {
-                        progressBar.Value = progressBar.Maximum;
+                        _progressBar.Value = _progressBar.Maximum;
                     }
                     else
                     {
-                        progressBar.Value = progressBar.Maximum;
-                        progressBar.ForeColor = Color.Red;
+                        _progressBar.Value = _progressBar.Maximum;
+                        _progressBar.ForeColor = Color.Red;
                     }
-                    btnFlash.Enabled = true;
-                    btnInstallDrivers.Enabled = true;
-                    isOperationInProgress = false;
-                    currentProcess = null;
+                    _btnFlash.Enabled = true;
+                    _btnInstallDrivers.Enabled = true;
+                    _isOperationInProgress = false;
+                    _currentProcess = null;
                 }));
             });
         }
 
         private void UpdateTextBox(string text)
         {
-            textBoxOutput.AppendText(text + Environment.NewLine);
+            _textBoxOutput.AppendText(text + Environment.NewLine);
         }
     }
 }

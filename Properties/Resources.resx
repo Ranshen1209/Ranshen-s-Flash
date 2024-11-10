@@ -114,4 +114,25 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="StartFlashing" xml:space="preserve">
+    <value>Start flashing</value>
+</data>
+  <data name="InstallDriver" xml:space="preserve">
+    <value>Install driver</value>
+</data>
+  <data name="OperationInProgressMessage" xml:space="preserve">
+    <value>Operation in progress. Please wait until it's completed before closing the application.</value>
+</data>
+  <data name="AppTitle" xml:space="preserve">
+    <value>Ranshen's Flash</value>
+</data>
+  <data name="ProjectOpenSourceAddress" xml:space="preserve">
+    <value>Project open source address: {0}</value>
+</data>
+  <data name="SelectScriptMessage" xml:space="preserve">
+    <value>Please select a script to flash.</value>
+</data>
+  <data name="ScriptFileNotFoundMessage" xml:space="preserve">
+    <value>The selected script file does not exist. Please verify the files and try again.</value>
+</data>
 </root>
